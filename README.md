@@ -1,2 +1,2 @@
 # insta-data-scraper
-A module for scraping the users data from the Instagram.
+Module for collecting information about user posts on Instagram.

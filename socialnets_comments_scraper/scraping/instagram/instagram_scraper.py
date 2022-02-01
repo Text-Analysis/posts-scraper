@@ -1,16 +1,17 @@
-import instaloader
 from typing import List
-from schemas.schemas import Comment
+
+from instaloader import Instaloader, Profile
+
+from socialnets_comments_scraper.models import Comment
 
 
-class Parser:
-
-    def __init__(self, username: str, password: str):
-        self.loader = instaloader.Instaloader()
-        self.loader.login(username, password)
+class InstagramScraper:
+    def __init__(self, login: str, password: str):
+        self.loader = Instaloader()
+        self.loader.login(login, password)
 
     def get_comments(self, username: str) -> List[Comment]:
-        prof = instaloader.Profile.from_username(self.loader.context, username)
+        prof = Profile.from_username(self.loader.context, username)
         posts = prof.get_posts()
 
         comments: List[Comment] = []
