@@ -1,3 +1,2 @@
-from .scraping.instagram import *
+from .scraping import *
 from .database import *
-from .models import *
