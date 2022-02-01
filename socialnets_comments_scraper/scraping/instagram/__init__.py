@@ -1,1 +1,1 @@
-from .instagram_scraper import *
+from .scraper import *

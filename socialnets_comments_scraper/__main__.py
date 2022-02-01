@@ -1,8 +1,7 @@
 import argparse as ap
-from itertools import takewhile, dropwhile
 from datetime import datetime
 
-from instaloader import Instaloader, Profile
+from socialnets_comments_scraper.scraping.instagram import InstagramScraper
 
 
 def setup_args_parser():
@@ -55,19 +54,6 @@ def main():
     parser = setup_args_parser()
     args = parser.parse_args()
 
-    loader = Instaloader(
-        download_comments=True,
-        download_pictures=True,
-        download_videos=False,
-        download_video_thumbnails=False,
-        download_geotags=False,
-        save_metadata=False,
-        dirname_pattern=args.dir
-    )
-    loader.login(args.username, args.password)
-
-    posts = Profile.from_username(loader.context, args.target_username).get_posts()
-
     try:
         since = datetime.fromisoformat(args.since)
         until = datetime.fromisoformat(args.until)
@@ -75,8 +61,11 @@ def main():
         print(ex)
         return
 
-    for post in takewhile(lambda p: p.date > since, dropwhile(lambda p: p.date > until, posts)):
-        loader.download_post(post, args.target_username)
+    scraper = InstagramScraper(args.username, args.password)
+    posts = scraper.get_posts(args.target_username, since, until)
+
+    for post in posts:
+        print(post.json(ensure_ascii=False))
 
 
 if __name__ == '__main__':
