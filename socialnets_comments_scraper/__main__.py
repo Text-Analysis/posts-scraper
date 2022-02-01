@@ -7,45 +7,45 @@ from instaloader import Instaloader, Profile
 
 def setup_args_parser():
     parser = ap.ArgumentParser(
-        description="Module for collecting information about user posts on Instagram"
+        description='Module for collecting information about user posts on Instagram and VK'
     )
 
     parser.add_argument(
-        "username",
+        'username',
         type=str,
-        help="the name of the Instagram account from which the data will be collected"
+        help='the name of the social media account from which the data will be collected'
     )
 
     parser.add_argument(
-        "password",
+        'password',
         type=str,
-        help="the password of the Instagram account from which the data will be collected"
+        help='the password of the social media account from which the data will be collected'
     )
 
     parser.add_argument(
-        "target_username",
+        'target_username',
         type=str,
-        help="the name of the Instagram account from which the data will be collected"
+        help='the name of the social media account from which the data will be collected'
     )
 
     parser.add_argument(
-        dest="since",
+        dest='since',
         type=str,
-        help="the time since which the data will be collected (format: 2011-11-04)"
+        help='the time since which the data will be collected (format: 2011-11-04)'
     )
 
     parser.add_argument(
-        dest="until",
+        dest='until',
         type=str,
-        help="the time until which the data will be collected (format: 2011-11-04)"
+        help='the time until which the data will be collected (format: 2011-11-04)'
     )
 
     parser.add_argument(
-        "-d",
-        dest="dir",
-        default="insta_data",
+        '-d',
+        dest='dir',
+        default='insta_data',
         type=str,
-        help="the folder name for saving the collected information"
+        help='the folder name for saving the collected information'
     )
 
     return parser
@@ -79,5 +79,5 @@ def main():
         loader.download_post(post, args.target_username)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
