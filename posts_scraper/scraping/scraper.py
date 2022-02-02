@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 from typing import List
-from models import PostScrapingModel, CommentScrapingModel
-from instaloader import Post
+from models import PostScrapingModel
 
 
 class Scraper(ABC):
@@ -13,9 +12,9 @@ class Scraper(ABC):
                   until: datetime = datetime.now()
                   ) -> List[PostScrapingModel]:
         """
-        :param username: account
+        :param username: the scraper target
         :param since: beginning of period
         :param until: end of period
-        :return: Method returns a list of posts
+        :return: a list of posts
         """
         pass

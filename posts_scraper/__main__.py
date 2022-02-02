@@ -1,7 +1,7 @@
 import argparse as ap
 from datetime import datetime
 
-from socialnets_comments_scraper.scraping.instagram import InstagramScraper
+from posts_scraper.scraping.instagram import InstagramScraper
 
 
 def setup_args_parser():
