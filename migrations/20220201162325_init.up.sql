@@ -1,27 +1,27 @@
-CREATE TABLE IF NOT EXISTS Socialnet
+CREATE TABLE IF NOT EXISTS socialnet
 (
     id   SERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS Entity
+CREATE TABLE IF NOT EXISTS entity
 (
     id              SERIAL PRIMARY KEY,
     name            VARCHAR(150) NOT NULL,
     is_organization BOOLEAN      NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS Account
+CREATE TABLE IF NOT EXISTS account
 (
     id           SERIAL PRIMARY KEY,
     url          TEXT    NOT NULL UNIQUE,
     entity_id    INTEGER NOT NULL,
     socialnet_id INTEGER NOT NULL,
-    CONSTRAINT fk_socialnet_account FOREIGN KEY (socialnet_id) REFERENCES Socialnet (id),
-    CONSTRAINT fk_entity_account FOREIGN KEY (entity_id) REFERENCES Entity (id)
+    CONSTRAINT fk_socialnet_account FOREIGN KEY (socialnet_id) REFERENCES socialnet (id),
+    CONSTRAINT fk_entity_account FOREIGN KEY (entity_id) REFERENCES entity (id)
 );
 
-CREATE TABLE IF NOT EXISTS Post
+CREATE TABLE IF NOT EXISTS post
 (
     id              SERIAL PRIMARY KEY,
     url             TEXT                     NOT NULL UNIQUE,
@@ -30,10 +30,10 @@ CREATE TABLE IF NOT EXISTS Post
     text            TEXT,
     created_at_time TIMESTAMP WITH TIME ZONE NOT NULL,
     likes           INTEGER                  NOT NULL,
-    CONSTRAINT fk_account_post FOREIGN KEY (owner_id) REFERENCES Account (id)
+    CONSTRAINT fk_account_post FOREIGN KEY (owner_id) REFERENCES account (id)
 );
 
-CREATE TABLE IF NOT EXISTS Comment
+CREATE TABLE IF NOT EXISTS comment
 (
     id              SERIAL PRIMARY KEY,
     url             TEXT                     NOT NULL UNIQUE,
@@ -42,5 +42,5 @@ CREATE TABLE IF NOT EXISTS Comment
     owner_url       TEXT                     NOT NULL,
     created_at_time TIMESTAMP WITH TIME ZONE NOT NULL,
     likes           INTEGER                  NOT NULL,
-    CONSTRAINT fk_post_comment FOREIGN KEY (post_id) REFERENCES Post (id)
+    CONSTRAINT fk_post_comment FOREIGN KEY (post_id) REFERENCES post (id)
 );
