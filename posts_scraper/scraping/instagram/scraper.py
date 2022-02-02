@@ -5,10 +5,9 @@ from pytz import timezone
 
 from instaloader import Instaloader, Profile, Post
 
-from socialnets_comments_scraper.scraping.models import CommentScrapingModel, PostScrapingModel
-from socialnets_comments_scraper.scraping.scraper import Scraper
-
-TZ = 'Europe/Samara'
+from posts_scraper.scraping.models import CommentScrapingModel, PostScrapingModel
+from posts_scraper.scraping.scraper import Scraper
+from posts_scraper.configs.configs import TZ
 
 
 class InstagramScraper(Scraper):
@@ -19,17 +18,18 @@ class InstagramScraper(Scraper):
 
     def get_posts(self, username: str,
                   since=(datetime.now() - timedelta(30)),
-                  until=datetime.now()) -> List[PostScrapingModel]:
-        username_profile = Profile.from_username(self.loader.context, username)
-        username_posts = username_profile.get_posts()
+                  until=datetime.now()
+                  ) -> List[PostScrapingModel]:
+        profile = Profile.from_username(self.loader.context, username)
+        posts = profile.get_posts()
 
-        result_posts: List[PostScrapingModel] = []
-        for post in takewhile(lambda p: p.date > since, dropwhile(lambda p: p.date > until, username_posts)):
+        scraped_posts: List[PostScrapingModel] = []
+        for post in takewhile(lambda p: p.date > since, dropwhile(lambda p: p.date > until, posts)):
             post_comments = self.get_comments(post)
             post_url = f'https://www.instagram.com/p/{post.shortcode}/'
             post_owner_url = f'https://www.instagram.com/{post.owner_username}/'
 
-            result_posts.append(PostScrapingModel(
+            scraped_posts.append(PostScrapingModel(
                 url=post_url,
                 owner_url=post_owner_url,
                 picture=post.url,
@@ -38,12 +38,13 @@ class InstagramScraper(Scraper):
                 created_at_time=post.date_local.replace(tzinfo=timezone(TZ)),
                 comments=post_comments
             ))
-        return result_posts
+        return scraped_posts
 
     @staticmethod
     def get_comments(post: Post) -> List[CommentScrapingModel]:
         post_url = f'https://www.instagram.com/p/{post.shortcode}/'
-        result_comments: List[CommentScrapingModel] = []
+
+        scraped_comments: List[CommentScrapingModel] = []
         for comment in post.get_comments():
             scraped_comment = CommentScrapingModel(
                 url=f'{post_url}c/{comment.id}/',
@@ -53,10 +54,10 @@ class InstagramScraper(Scraper):
                 likes=comment.likes_count,
                 created_at_time=comment.created_at_utc.replace(tzinfo=timezone(TZ)),
             )
-            result_comments.append(scraped_comment)
+            scraped_comments.append(scraped_comment)
 
             for answer in comment.answers:
-                result_comments.append(CommentScrapingModel(
+                scraped_comments.append(CommentScrapingModel(
                     url=f'{scraped_comment.url}r/{answer.id}/',
                     owner_url=f'https://www.instagram.com/{answer.owner.username}/',
                     post_url=post_url,
@@ -64,4 +65,4 @@ class InstagramScraper(Scraper):
                     likes=answer.likes_count,
                     created_at_time=comment.created_at_utc.replace(tzinfo=timezone(TZ)),
                 ))
-        return result_comments
+        return scraped_comments
