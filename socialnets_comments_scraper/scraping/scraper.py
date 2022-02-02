@@ -19,12 +19,3 @@ class Scraper(ABC):
         :return: Method returns a list of posts
         """
         pass
-
-    @staticmethod
-    @abstractmethod
-    def get_comments(post: Post) -> List[CommentScrapingModel]:
-        """
-        :param post: Object of class Post
-        :return: Method returns a list of comments for the current post
-        """
-        pass
