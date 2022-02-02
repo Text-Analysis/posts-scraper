@@ -6,11 +6,13 @@ from pytz import timezone
 from instaloader import Instaloader, Profile, Post
 
 from socialnets_comments_scraper.scraping.models import CommentScrapingModel, PostScrapingModel
+from socialnets_comments_scraper.scraping.scraper import Scraper
 
 TZ = 'Europe/Samara'
 
 
-class InstagramScraper:
+class InstagramScraper(Scraper):
+
     def __init__(self, login: str, password: str):
         self.loader = Instaloader()
         self.loader.login(login, password)
