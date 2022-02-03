@@ -1,5 +1,6 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, TypeVar, Generic
+from instaloader import Post
 
 from pydantic import BaseModel
 
@@ -21,3 +22,8 @@ class PostScrapingModel(BaseModel):
     likes: int
     created_at_time: datetime
     comments: Optional[List[CommentScrapingModel]]
+
+
+PostInstType = TypeVar('PostInstType', bound=Post)
+
+T: Generic = Generic[PostInstType]
