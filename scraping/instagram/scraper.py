@@ -3,12 +3,12 @@ from datetime import timedelta
 from itertools import takewhile, dropwhile
 from time import sleep
 
-from instaloader import Instaloader, Profile
+from instaloader import Instaloader, Profile, Post
 from pytz import timezone
 
 from configs.configs import TZ
 from scraping.models import *
-from scraping.scraper import Scraper, SocialnetPost
+from scraping.scraper import Scraper
 
 
 class InstagramScraper(Scraper):
@@ -67,7 +67,7 @@ class InstagramScraper(Scraper):
 
         return scraped_posts
 
-    def get_comments(self, post: SocialnetPost) -> List[CommentScrapingModel]:
+    def get_comments(self, post: Post) -> List[CommentScrapingModel]:
         post_url = f'https://www.instagram.com/p/{post.shortcode}/'
 
         scraped_comments: List[CommentScrapingModel] = []
