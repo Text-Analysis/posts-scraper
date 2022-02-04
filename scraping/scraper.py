@@ -1,10 +1,19 @@
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 from typing import List
-from models import PostScrapingModel
+
+from scraping.models import PostScrapingModel, AccountScrapingModel
 
 
 class Scraper(ABC):
+
+    @abstractmethod
+    def get_account_info(self, username: str) -> AccountScrapingModel:
+        """
+        :param username: the scraper target
+        :return: the information about username
+        """
+        pass
 
     @abstractmethod
     def get_posts(self, username: str,

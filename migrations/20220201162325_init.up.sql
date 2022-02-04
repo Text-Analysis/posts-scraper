@@ -23,24 +23,24 @@ CREATE TABLE IF NOT EXISTS account
 
 CREATE TABLE IF NOT EXISTS post
 (
-    id              SERIAL PRIMARY KEY,
-    url             TEXT                     NOT NULL UNIQUE,
-    owner_id        INTEGER                  NOT NULL,
-    picture         TEXT,
-    text            TEXT,
-    created_at_time TIMESTAMP WITH TIME ZONE NOT NULL,
-    likes           INTEGER                  NOT NULL,
+    id       SERIAL PRIMARY KEY,
+    url      TEXT                     NOT NULL UNIQUE,
+    owner_id INTEGER                  NOT NULL,
+    picture  TEXT,
+    text     TEXT,
+    time     TIMESTAMP WITH TIME ZONE NOT NULL,
+    likes    INTEGER                  NOT NULL,
     CONSTRAINT fk_account_post FOREIGN KEY (owner_id) REFERENCES account (id)
 );
 
 CREATE TABLE IF NOT EXISTS comment
 (
-    id              SERIAL PRIMARY KEY,
-    url             TEXT                     NOT NULL UNIQUE,
-    post_id         INTEGER                  NOT NULL,
-    text            TEXT                     NOT NULL,
-    owner_url       TEXT                     NOT NULL,
-    created_at_time TIMESTAMP WITH TIME ZONE NOT NULL,
-    likes           INTEGER                  NOT NULL,
+    id        SERIAL PRIMARY KEY,
+    url       TEXT                     NOT NULL UNIQUE,
+    post_id   INTEGER                  NOT NULL,
+    text      TEXT                     NOT NULL,
+    owner_url TEXT                     NOT NULL,
+    time      TIMESTAMP WITH TIME ZONE NOT NULL,
+    likes     INTEGER                  NOT NULL,
     CONSTRAINT fk_post_comment FOREIGN KEY (post_id) REFERENCES post (id)
 );
