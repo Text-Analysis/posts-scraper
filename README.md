@@ -50,11 +50,27 @@ Python >= 3.7
 
 ## Setup
 
-````
-$ git clone https://github.com/Text-Analysis/posts-scraper.git
-$ cd posts-scraper
-$ pip install -r requirements.txt
-````
+1. Clone project files from GitHub:
+
+`git clone https://github.com/Text-Analysis/posts-scraper.git`
+
+2. Move to the project directory:
+
+`cd posts-scraper`
+
+3. Create virtual environment (recommended):
+
+`pip install virtualenv`
+
+`python -m virtualenv venv`
+
+4. Activate the virtual environment:
+
+`./venv/Scripts/activate`
+
+5. Install the project requirements:
+
+`pip install -r requirements.txt`
 
 ## .env configuration fields
 
