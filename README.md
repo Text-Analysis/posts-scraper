@@ -40,9 +40,10 @@ PostgreSQL database.
 ## Preparing
 
 1. Create PostgreSQL database or use existing.
-2. Apply migrations to this database (see: `migrations`)
-3. Create an account in Instagram or use existing (We recommend use new because account may be blocked by Instagram.
-   because of many requests to this platform)
+2. Apply migrations to this database (see: `migrations`
+   and https://github.com/golang-migrate/migrate/blob/master/MIGRATIONS.md).
+3. Create an account in Instagram or use existing (We recommend use new because account may be blocked by Instagram
+   because of many requests to this platform).
 
 ## Dependencies
 
