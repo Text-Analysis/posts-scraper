@@ -42,7 +42,7 @@ PostgreSQL database.
 1. Create PostgreSQL database or use existing.
 2. Apply migrations to this database (see: `migrations`
    and https://github.com/golang-migrate/migrate/blob/master/MIGRATIONS.md).
-3. Create an account in Instagram or use existing (We recommend use new because account may be blocked by Instagram
+3. Create an account in Instagram or use existing (We recommend using new because account may be blocked by Instagram
    because of many requests to this platform).
 
 ## Dependencies
@@ -59,7 +59,7 @@ Python >= 3.7
 
 `cd posts-scraper`
 
-3. Create virtual environment (recommended):
+3. Create virtual environment:
 
 `pip install virtualenv`
 
