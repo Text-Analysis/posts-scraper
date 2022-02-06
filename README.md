@@ -1,7 +1,7 @@
 # Posts scraper
 
 Python module for collecting information about user posts on Instagram for the selected time period. The collected
-information is placed in the PostgreSQL database.
+information is stored in the PostgreSQL database.
 
 ## Examples of scraping results
 
@@ -110,11 +110,11 @@ Output:
 usage: main.py [-h] username start_time end_time
 
 Python module for collecting information about user posts on Instagram for the
-selected time period. The collected information is placed in the PostgreSQL
+selected time period. The collected information is saved in the PostgreSQL
 database.
 
 positional arguments:
-  username    the account whose posts data will be entered into the PostgreSQL
+  username    the account whose posts data will be saved into the PostgreSQL
               database
   start_time  the beginning of the publication time period (in the format:
               2022-01-01)
@@ -123,7 +123,6 @@ positional arguments:
 
 optional arguments:
   -h, --help  show this help message and exit
-
 ```
 
 ## References

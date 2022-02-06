@@ -20,13 +20,13 @@ def init_logger() -> logging.Logger:
 def init_args_parser() -> ap.ArgumentParser:
     parser = ap.ArgumentParser(
         description='Python module for collecting information about user posts on Instagram '
-                    'for the selected time period. The collected information is placed in the PostgreSQL database.'
+                    'for the selected time period. The collected information is saved in the PostgreSQL database.'
     )
 
     parser.add_argument(
         'username',
         type=str,
-        help='the account whose posts data will be entered into the PostgreSQL database'
+        help='the account whose posts data will be saved into the PostgreSQL database'
     )
 
     parser.add_argument(
