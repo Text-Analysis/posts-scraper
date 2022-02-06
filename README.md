@@ -73,10 +73,6 @@ Python >= 3.7
 
 `pip install -r requirements.txt`
 
-6. Deactivate the virtual environment:
-
-`deactivate`
-
 ## .env configuration fields
 
 Create `.env` file in the root of project (see: `.env.example`).
@@ -124,6 +120,10 @@ positional arguments:
 optional arguments:
   -h, --help  show this help message and exit
 ```
+
+At the end of the work, deactivate the virtual environment:
+
+`deactivate`
 
 ## References
 
