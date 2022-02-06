@@ -18,7 +18,10 @@ class InstagramScraper(Scraper):
         self.loader.login(login, password)
         self.logger = logger
 
-    def get_account_info(self, username: str) -> AccountScrapingModel:
+    def get_posts(self, username: str,
+                  since=(datetime.now() - timedelta(30)),
+                  until=datetime.now()
+                  ) -> List[PostScrapingModel]:
         profile = Profile.from_username(self.loader.context, username)
 
         account_info = AccountScrapingModel(
@@ -33,15 +36,6 @@ class InstagramScraper(Scraper):
         )
 
         self.logger.info('account information has been scraped: %s', account_info)
-        return account_info
-
-    def get_posts(self, username: str,
-                  since=(datetime.now() - timedelta(30)),
-                  until=datetime.now()
-                  ) -> List[PostScrapingModel]:
-        profile = Profile.from_username(self.loader.context, username)
-
-        account = self.get_account_info(username)
         sleep(3)
 
         posts = profile.get_posts()
@@ -53,7 +47,7 @@ class InstagramScraper(Scraper):
 
             post_info = PostScrapingModel(
                 url=f'https://www.instagram.com/p/{post.shortcode}/',
-                account=account,
+                account=account_info,
                 picture=post.url,
                 text=post.caption,
                 likes=post.likes,

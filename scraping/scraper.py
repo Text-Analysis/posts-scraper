@@ -4,20 +4,12 @@ from typing import List, TypeVar
 
 import instaloader
 
-from scraping.models import PostScrapingModel, AccountScrapingModel, CommentScrapingModel
+from scraping.models import PostScrapingModel, CommentScrapingModel
 
 SocialnetPost = TypeVar('SocialnetPost', bound=instaloader.Post)
 
 
 class Scraper(ABC):
-
-    @abstractmethod
-    def get_account_info(self, username: str) -> AccountScrapingModel:
-        """
-        :param username: the scraper target
-        :return: the information about username
-        """
-        pass
 
     @abstractmethod
     def get_posts(self, username: str,

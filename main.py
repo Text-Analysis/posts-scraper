@@ -1,13 +1,14 @@
+import argparse as ap
 import logging
 import logging.config
-from time import sleep
 from datetime import datetime
+from time import sleep
 
 from instaloader import ProfileNotExistsException, ConnectionException
 
 from configs import *
-from scraping import InstagramScraper
 from database import Database
+from scraping import InstagramScraper
 
 
 def init_logger() -> logging.Logger:
@@ -16,38 +17,66 @@ def init_logger() -> logging.Logger:
     return logger
 
 
+def init_args_parser() -> ap.ArgumentParser:
+    parser = ap.ArgumentParser(
+        description='Python module for collecting information about user posts on Instagram '
+                    'for the selected time period. The collected information is placed in the PostgreSQL database.'
+    )
+
+    parser.add_argument(
+        'username',
+        type=str,
+        help='the account whose posts data will be entered into the PostgreSQL database'
+    )
+
+    parser.add_argument(
+        'start_time',
+        type=str,
+        help='the beginning of the publication time period (in the format: 2022-01-01)'
+    )
+
+    parser.add_argument(
+        'end_time',
+        type=str,
+        help='the end of the publication time period (in the format: 2022-01-01)'
+    )
+
+    return parser
+
+
 def main():
     logger = init_logger()
 
-    target_input = input('Input username: ')
-    since_input = input('Input since from date (format: 2022-01-20): ')
-    until_input = input('Input until to date (format: 2022-01-20): ')
+    parser = init_args_parser()
+    args = parser.parse_args()
+
     try:
-        since = datetime.fromisoformat(since_input)
-        until = datetime.fromisoformat(until_input)
+        start_time = datetime.fromisoformat(args.start_time)
+        end_time = datetime.fromisoformat(args.end_time)
     except ValueError as ex:
-        logger.fatal('exception occurred while converting since, until from strings to datetime objects: %s', ex)
+        logger.fatal('exception occurred while converting start_time, end_time from strings to datetime objects: %s',
+                     ex)
         return
 
-    if since > until:
-        logger.fatal('until date cannot be earlier then since date: since=%s, until=%s', since, until)
+    if start_time > end_time:
+        logger.fatal('end_time date cannot be earlier then start_time date: start_time=%s, end_time=%s',
+                     start_time, end_time)
         return
 
-    connected = False
-    while not connected:
+    while True:
         try:
             scraper = InstagramScraper(INSTA_LOGIN, INSTA_PASSWORD, logger)
-            connected = True
+            break
         except ConnectionException as ex:
-            logger.warning('exception occurred while getting %s account info: %s', target_input, ex)
+            logger.warning('exception occurred while getting %s account info: %s', args.username, ex)
 
             logger.info('sleep 10 second and retry to connect...')
             sleep(10)
 
     try:
-        posts = scraper.get_posts(target_input, since, until)
+        posts = scraper.get_posts(args.username, start_time, end_time)
     except ProfileNotExistsException as ex:
-        logger.fatal('Exception occurred while getting %s account info: %s', target_input, ex)
+        logger.fatal('exception occurred while getting %s account info: %s', args.username, ex)
         return
 
     db = Database(logger)

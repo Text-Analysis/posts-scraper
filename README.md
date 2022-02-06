@@ -1,9 +1,9 @@
 # Posts scraper
 
-Python module for collecting information about user posts on Instagram. The collected information is placed in the
-PostgreSQL database.
+Python module for collecting information about user posts on Instagram for the selected time period. The collected
+information is placed in the PostgreSQL database.
 
-## Results examples
+## Examples of scraping results
 
 `socialnet` table:
 
@@ -73,22 +73,58 @@ Python >= 3.7
 
 `pip install -r requirements.txt`
 
+6. Deactivate the virtual environment:
+
+`deactivate`
+
 ## .env configuration fields
 
 Create `.env` file in the root of project (see: `.env.example`).
 
-````
+```
 DATABASE_URL=                    # PostgreSQL connection string
 INSTAGRAM_LOGIN=                 # Instagram account login
 INSTAGRAM_PASSWORD=              # Instagram account password
 TZ=                              # Timezone (e.g. Europe/Samara)
-````
+```
 
 ## Usage
 
-````
-python main.py
-````
+To scrape a user's posts information:
+
+`python main.py <username> <start_time> <end_time>`
+
+For example:
+
+`python main.py tmrrwnxtsn 2021-12-30 2022-02-05`
+
+*NOTE: To scrape a private user's posts you must be an approved follower.*
+
+To see help message:
+
+`python main.py --help`
+
+Output:
+
+```
+usage: main.py [-h] username start_time end_time
+
+Python module for collecting information about user posts on Instagram for the
+selected time period. The collected information is placed in the PostgreSQL
+database.
+
+positional arguments:
+  username    the account whose posts data will be entered into the PostgreSQL
+              database
+  start_time  the beginning of the publication time period (in the format:
+              2022-01-01)
+  end_time    the end of the publication time period (in the format:
+              2022-01-01)
+
+optional arguments:
+  -h, --help  show this help message and exit
+
+```
 
 ## References
 
