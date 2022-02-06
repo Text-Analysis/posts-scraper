@@ -1,4 +1,4 @@
-# Posts scraper
+<h1 align="center">Posts scraper</h1>
 
 posts-scraper is a command-line application written in Python for collecting information about user posts on Instagram
 for the selected time period. The collected information is stored in the PostgreSQL database.
