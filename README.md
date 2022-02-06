@@ -40,8 +40,7 @@ information is stored in the PostgreSQL database.
 ## Preparing
 
 1. Create PostgreSQL database or use existing.
-2. Apply migrations to this database (see: `migrations`
-   and https://github.com/golang-migrate/migrate/blob/master/MIGRATIONS.md).
+2. Apply [migrations](https://github.com/golang-migrate/migrate) to this database (see `migrations` folder).
 3. Create an account in Instagram or use existing (We recommend using new because account may be blocked by Instagram
    because of many requests to this platform).
 
@@ -124,9 +123,3 @@ optional arguments:
 At the end of the work, deactivate the virtual environment:
 
 `deactivate`
-
-## References
-
-[1] https://github.com/instaloader/instaloader
-
-[2] https://github.com/golang-migrate/migrate
