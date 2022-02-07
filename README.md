@@ -53,7 +53,7 @@ TZ=                              # Timezone (e.g. Europe/Samara)
 
 To scrape a user's posts information:
 
-`python main.py <username> <start_time> <end_time>`
+`python main.py <username> <start time> <end time>`
 
 For example:
 
