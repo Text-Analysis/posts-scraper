@@ -27,6 +27,8 @@ class CommentScrapingModel(BaseModel):
     text: str
     likes: int
     time: datetime
+    tags: List[str]
+    links: List[str]
 
 
 class PostScrapingModel(BaseModel):

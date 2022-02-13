@@ -3,12 +3,13 @@ from datetime import timedelta
 from itertools import takewhile, dropwhile
 from time import sleep
 
-from instaloader import Instaloader, Profile, Post
+from instaloader import Instaloader, Profile
 from pytz import timezone
 
 from configs.configs import TZ
 from scraping.models import *
 from scraping.scraper import Scraper
+from utility.utility import *
 
 
 class InstagramScraper(Scraper):
@@ -68,7 +69,6 @@ class InstagramScraper(Scraper):
 
         scraped_comments: List[CommentScrapingModel] = []
         for comment in post.get_comments():
-            print(comment)
             comment_info = CommentScrapingModel(
                 url=f'{post_url}c/{comment.id}/',
                 owner_url=f'https://www.instagram.com/{comment.owner.username}/',
@@ -76,6 +76,8 @@ class InstagramScraper(Scraper):
                 text=comment.text,
                 likes=comment.likes_count,
                 time=comment.created_at_utc.replace(tzinfo=timezone(TZ)),
+                tags=get_hashtags(comment.text),
+                links=get_mentions(comment.text)
             )
 
             scraped_comments.append(comment_info)
@@ -90,6 +92,8 @@ class InstagramScraper(Scraper):
                     text=answer.text,
                     likes=answer.likes_count,
                     time=comment.created_at_utc.replace(tzinfo=timezone(TZ)),
+                    tags=get_hashtags(comment.text),
+                    links=get_mentions(comment.text)
                 )
 
                 scraped_comments.append(answer_info)

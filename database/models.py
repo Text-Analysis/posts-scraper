@@ -30,6 +30,8 @@ class CommentDatabaseModel(BaseModel):
     owner_url: str
     time: datetime
     likes: int
+    tags: List[str]
+    links: List[str]
 
 
 class PostDatabaseModel(BaseModel):
