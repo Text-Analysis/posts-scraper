@@ -1,7 +1,12 @@
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
-from typing import List
-from models import PostScrapingModel, CommentScrapingModel, T
+from typing import List, TypeVar
+
+import instaloader
+
+from scraping.models import PostScrapingModel, CommentScrapingModel
+
+SocialnetPost = TypeVar('SocialnetPost', bound=instaloader.Post)
 
 
 class Scraper(ABC):
@@ -19,10 +24,10 @@ class Scraper(ABC):
         """
         pass
 
-    @staticmethod
-    def get_comments(post: T) -> List[CommentScrapingModel]:
+    @abstractmethod
+    def get_comments(self, post: SocialnetPost) -> List[CommentScrapingModel]:
         """
-        :param post: generic type
-        :return: a list of comments
+        :param post: represents social media post
+        :return: a list of post's comments
         """
         pass
