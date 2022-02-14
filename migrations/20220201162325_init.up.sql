@@ -27,11 +27,11 @@ CREATE TABLE IF NOT EXISTS post
     url      TEXT                     NOT NULL UNIQUE,
     owner_id INTEGER                  NOT NULL,
     picture  TEXT                     NOT NULL,
-    text     TEXT                     NOT NULL,
+    text     TEXT,
     time     TIMESTAMP WITH TIME ZONE NOT NULL,
     likes    INTEGER                  NOT NULL,
-    tags     TEXT[]                   NOT NULL,
-    links    TEXT[]                   NOT NULL,
+    tags     TEXT[],
+    links    TEXT[],
     CONSTRAINT fk_account_post FOREIGN KEY (owner_id) REFERENCES account (id)
 );
 
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS comment
     owner_url TEXT                     NOT NULL,
     time      TIMESTAMP WITH TIME ZONE NOT NULL,
     likes     INTEGER                  NOT NULL,
-    tags     TEXT[]                    NOT NULL,
-    links    TEXT[]                    NOT NULL,
+    tags     TEXT[],
+    links    TEXT[],
     CONSTRAINT fk_post_comment FOREIGN KEY (post_id) REFERENCES post (id)
 );
