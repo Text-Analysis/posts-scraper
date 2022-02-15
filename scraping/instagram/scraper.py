@@ -3,12 +3,13 @@ from datetime import timedelta
 from itertools import takewhile, dropwhile
 from time import sleep
 
-from instaloader import Instaloader, Profile, Post
+from instaloader import Instaloader, Profile
 from pytz import timezone
 
 from configs.configs import TZ
 from scraping.models import *
 from scraping.scraper import Scraper
+from utility.utility import *
 
 
 class InstagramScraper(Scraper):
@@ -52,7 +53,9 @@ class InstagramScraper(Scraper):
                 text=post.caption,
                 likes=post.likes,
                 time=post.date_local.replace(tzinfo=timezone(TZ)),
-                comments=post_comments
+                comments=post_comments,
+                tags=post.caption_hashtags,
+                links=post.caption_mentions
             )
 
             scraped_posts.append(post_info)
@@ -73,6 +76,8 @@ class InstagramScraper(Scraper):
                 text=comment.text,
                 likes=comment.likes_count,
                 time=comment.created_at_utc.replace(tzinfo=timezone(TZ)),
+                tags=get_hashtags(comment.text),
+                links=get_mentions(comment.text)
             )
 
             scraped_comments.append(comment_info)
@@ -87,6 +92,8 @@ class InstagramScraper(Scraper):
                     text=answer.text,
                     likes=answer.likes_count,
                     time=comment.created_at_utc.replace(tzinfo=timezone(TZ)),
+                    tags=get_hashtags(answer.text),
+                    links=get_mentions(answer.text)
                 )
 
                 scraped_comments.append(answer_info)

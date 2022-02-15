@@ -115,10 +115,10 @@ class Database:
         account = self.get_account(post.account)
 
         self.cur.execute(
-            'INSERT INTO post (url, owner_id, picture, text, time, likes) '
-            'VALUES (%s, %s, %s, %s, %s, %s) '
+            'INSERT INTO post (url, owner_id, picture, text, time, likes, tags, links) '
+            'VALUES (%s, %s, %s, %s, %s, %s, %s, %s) '
             'RETURNING id',
-            (post.url, account.id, post.picture, post.text, post.time, post.likes,))
+            (post.url, account.id, post.picture, post.text, post.time, post.likes, post.tags, post.links))
         self.conn.commit()
 
         post_id = self.cur.fetchone()[0]
@@ -129,14 +129,16 @@ class Database:
             picture=post.picture,
             text=post.text,
             time=post.time,
-            likes=post.likes
+            likes=post.likes,
+            tags=post.tags,
+            links=post.links
         )
 
         self.logger.info('post information added to the database: %s', new_post)
         return new_post
 
     def get_post(self, post: PostScrapingModel) -> PostDatabaseModel:
-        self.cur.execute('SELECT id, url, owner_id, picture, text, time, likes '
+        self.cur.execute('SELECT id, url, owner_id, picture, text, time, likes, tags, links '
                          'FROM post '
                          'WHERE url = %s',
                          (post.url,))
@@ -150,15 +152,18 @@ class Database:
             picture=query_result[3],
             text=query_result[4],
             time=query_result[5],
-            likes=query_result[6]
+            likes=query_result[6],
+            tags=query_result[7],
+            links=query_result[8]
         )
 
     def add_comment(self, comment: CommentScrapingModel, post_id: int) -> CommentDatabaseModel:
         self.cur.execute(
-            'INSERT INTO comment (url, post_id, text, owner_url, time, likes) '
-            'VALUES (%s, %s, %s, %s, %s, %s) '
+            'INSERT INTO comment (url, post_id, text, owner_url, time, likes, tags, links) '
+            'VALUES (%s, %s, %s, %s, %s, %s, %s, %s) '
             'RETURNING id',
-            (comment.url, post_id, comment.text, comment.owner_url, comment.time, comment.likes,))
+            (comment.url, post_id, comment.text, comment.owner_url, comment.time, comment.likes,
+             comment.tags, comment.links))
         self.conn.commit()
 
         comment_id = self.cur.fetchone()[0]
@@ -169,14 +174,16 @@ class Database:
             text=comment.text,
             owner_url=comment.owner_url,
             time=comment.time,
-            likes=comment.likes
+            likes=comment.likes,
+            tags=comment.tags,
+            links=comment.links
         )
 
         self.logger.info('comment information added to the database: %s', new_comment)
         return new_comment
 
     def get_comment(self, comment: CommentScrapingModel, post_id: int) -> CommentDatabaseModel:
-        self.cur.execute('SELECT id, url, post_id, text, owner_url, time, likes '
+        self.cur.execute('SELECT id, url, post_id, text, owner_url, time, likes, tags, links '
                          'FROM comment '
                          'WHERE url = %s AND post_id = %s',
                          (comment.url, post_id,))
@@ -190,7 +197,9 @@ class Database:
             text=query_result[3],
             owner_url=query_result[4],
             time=query_result[5],
-            likes=query_result[6]
+            likes=query_result[6],
+            tags=query_result[7],
+            links=query_result[8]
         )
 
     def add_posts_with_comments(self, scraped_posts: List[PostScrapingModel]):

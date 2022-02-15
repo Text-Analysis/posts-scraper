@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from pydantic import BaseModel
+from typing import List
 
 
 class SocialnetDatabaseModel(BaseModel):
@@ -29,6 +30,8 @@ class CommentDatabaseModel(BaseModel):
     owner_url: str
     time: datetime
     likes: int
+    tags: List[str]
+    links: List[str]
 
 
 class PostDatabaseModel(BaseModel):
@@ -39,3 +42,5 @@ class PostDatabaseModel(BaseModel):
     text: str
     time: datetime
     likes: int
+    tags: List[str]
+    links: List[str]
