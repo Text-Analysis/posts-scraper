@@ -92,8 +92,8 @@ class InstagramScraper(Scraper):
                     text=answer.text,
                     likes=answer.likes_count,
                     time=comment.created_at_utc.replace(tzinfo=timezone(TZ)),
-                    tags=get_hashtags(comment.text),
-                    links=get_mentions(comment.text)
+                    tags=get_hashtags(answer.text),
+                    links=get_mentions(answer.text)
                 )
 
                 scraped_comments.append(answer_info)
