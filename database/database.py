@@ -137,6 +137,34 @@ class Database:
         self.logger.info('post information added to the database: %s', new_post)
         return new_post
 
+    def get_posts_by_urls(self, *urls) -> List[PostDatabaseModel]:
+        if not urls:
+            return []
+
+        self.cur.execute('SELECT id, url, owner_id, picture, text, time, likes, tags, links '
+                         'FROM post '
+                         'WHERE url IN %s', (urls, ))
+
+        query_result = self.cur.fetchall()
+        if query_result is None:
+            return []
+
+        array_result: List[PostDatabaseModel] = []
+
+        for item in query_result:
+            array_result.append(PostDatabaseModel(
+                id=item[0],
+                url=item[1],
+                owner_id=item[2],
+                picture=item[3],
+                text=item[4],
+                time=item[5],
+                likes=item[6],
+                tags=item[7],
+                links=item[8]
+            ))
+        return array_result
+
     def get_post(self, post: PostScrapingModel) -> PostDatabaseModel:
         self.cur.execute('SELECT id, url, owner_id, picture, text, time, likes, tags, links '
                          'FROM post '
