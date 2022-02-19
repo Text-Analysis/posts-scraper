@@ -210,6 +210,18 @@ class Database:
         self.logger.info('comment information added to the database: %s', new_comment)
         return new_comment
 
+    def get_comments_by_posts_id(self, *posts_id) -> List[CommentDatabaseModel]:
+        if not posts_id:
+            return []
+
+        self.cur.execute('SELECT id, url, post_id, text, owner_url, time, likes, tags, links '
+                         'FROM comment '
+                         'WHERE post_id IN %s', (posts_id,))
+
+        query_result = self.cur.fetchall()
+
+        return self.__get_comments_from_query(query_result)
+
     def get_comments_by_urls(self, *urls) -> List[CommentDatabaseModel]:
         if not urls:
             return []
@@ -220,6 +232,10 @@ class Database:
 
         query_result = self.cur.fetchall()
 
+        return self.__get_comments_from_query(query_result)
+
+    @staticmethod
+    def __get_comments_from_query(query_result: List) -> List[CommentDatabaseModel]:
         if query_result is None:
             return []
 
