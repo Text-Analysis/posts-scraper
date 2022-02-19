@@ -143,7 +143,7 @@ class Database:
 
         self.cur.execute('SELECT id, url, owner_id, picture, text, time, likes, tags, links '
                          'FROM post '
-                         'WHERE url IN %s', (urls, ))
+                         'WHERE url IN %s', (urls,))
 
         query_result = self.cur.fetchall()
         if query_result is None:
@@ -209,6 +209,35 @@ class Database:
 
         self.logger.info('comment information added to the database: %s', new_comment)
         return new_comment
+
+    def get_comments_by_urls(self, *urls) -> List[CommentDatabaseModel]:
+        if not urls:
+            return []
+
+        self.cur.execute('SELECT id, url, post_id, text, owner_url, time, likes, tags, links '
+                         'FROM comment '
+                         'WHERE url IN %s', (urls,))
+
+        query_result = self.cur.fetchall()
+
+        if query_result is None:
+            return []
+
+        array_result: List[CommentDatabaseModel] = []
+
+        for item in query_result:
+            array_result.append(CommentDatabaseModel(
+                id=item[0],
+                url=item[1],
+                post_id=item[2],
+                text=item[3],
+                owner_url=item[4],
+                time=item[5],
+                likes=item[6],
+                tags=item[7],
+                links=item[8]
+            ))
+        return array_result
 
     def get_comment(self, comment: CommentScrapingModel, post_id: int) -> CommentDatabaseModel:
         self.cur.execute('SELECT id, url, post_id, text, owner_url, time, likes, tags, links '
