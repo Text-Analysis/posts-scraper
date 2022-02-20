@@ -91,7 +91,7 @@ class InstagramScraper(Scraper):
                     post_url=post_url,
                     text=answer.text,
                     likes=answer.likes_count,
-                    time=comment.created_at_utc.replace(tzinfo=timezone(TZ)),
+                    time=answer.created_at_utc.replace(tzinfo=timezone(TZ)),
                     tags=get_hashtags(answer.text),
                     links=get_mentions(answer.text)
                 )
