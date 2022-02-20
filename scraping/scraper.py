@@ -4,7 +4,7 @@ from typing import List, TypeVar
 
 import instaloader
 
-from scraping.models import PostScrapingModel, CommentScrapingModel
+from models import PostScrapingModel, CommentScrapingModel
 
 SocialnetPost = TypeVar('SocialnetPost', bound=instaloader.Post)
 
@@ -12,10 +12,10 @@ SocialnetPost = TypeVar('SocialnetPost', bound=instaloader.Post)
 class Scraper(ABC):
 
     @abstractmethod
-    def get_posts(self, username: str,
-                  since: datetime = (datetime.now() - timedelta(30)),
-                  until: datetime = datetime.now()
-                  ) -> List[PostScrapingModel]:
+    def scrape_posts(self, username: str,
+                     since: datetime = (datetime.now() - timedelta(30)),
+                     until: datetime = datetime.now()
+                     ) -> List[PostScrapingModel]:
         """
         :param username: the scraper target
         :param since: beginning of period
@@ -25,7 +25,7 @@ class Scraper(ABC):
         pass
 
     @abstractmethod
-    def get_comments(self, post: SocialnetPost) -> List[CommentScrapingModel]:
+    def scrape_comments(self, post: SocialnetPost) -> List[CommentScrapingModel]:
         """
         :param post: represents social media post
         :return: a list of post's comments

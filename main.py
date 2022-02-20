@@ -7,7 +7,6 @@ from time import sleep
 from instaloader import ProfileNotExistsException, ConnectionException
 
 from configs import *
-from database import Database
 from scraping import InstagramScraper
 
 
@@ -65,7 +64,7 @@ def main():
 
     while True:
         try:
-            scraper = InstagramScraper(INSTA_LOGIN, INSTA_PASSWORD, logger)
+            scraper = InstagramScraper(INSTA_LOGIN, INSTA_PASSWORD, DATABASE_URL, logger)
             break
         except ConnectionException as ex:
             logger.warning('exception occurred while getting %s account info: %s', args.username, ex)
@@ -74,14 +73,10 @@ def main():
             sleep(10)
 
     try:
-        posts = scraper.get_posts(args.username, start_time, end_time)
+        scraper.scrape_posts(args.username, start_time, end_time)
     except ProfileNotExistsException as ex:
         logger.fatal('exception occurred while getting %s account info: %s', args.username, ex)
         return
-
-    db = Database(DATABASE_URL, logger)
-    db.add_posts_with_comments(posts)
-    db.close_connection()
 
 
 if __name__ == '__main__':
