@@ -79,7 +79,7 @@ def main():
         logger.fatal('exception occurred while getting %s account info: %s', args.username, ex)
         return
 
-    db = Database(logger)
+    db = Database(DATABASE_URL, logger)
     db.add_posts_with_comments(posts)
     db.close_connection()
 

@@ -2,14 +2,13 @@ import logging
 
 import psycopg2
 
-from configs import DATABASE_URL
 from scraping.models import *
 from .models import *
 
 
 class Database:
-    def __init__(self, logger: logging.Logger):
-        self.conn = psycopg2.connect(DATABASE_URL)
+    def __init__(self, database_url: str, logger: logging.Logger):
+        self.conn = psycopg2.connect(database_url)
         self.cur = self.conn.cursor()
         self.logger = logger
 
