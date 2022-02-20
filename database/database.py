@@ -2,14 +2,13 @@ import logging
 
 import psycopg2
 
-from configs import DATABASE_URL
 from scraping.models import *
 from .models import *
 
 
 class Database:
-    def __init__(self, logger: logging.Logger):
-        self.conn = psycopg2.connect(DATABASE_URL)
+    def __init__(self, database_url: str, logger: logging.Logger):
+        self.conn = psycopg2.connect(database_url)
         self.cur = self.conn.cursor()
         self.logger = logger
 
@@ -137,42 +136,16 @@ class Database:
         self.logger.info('post information added to the database: %s', new_post)
         return new_post
 
-    def get_posts_by_urls(self, *urls) -> List[PostDatabaseModel]:
-        if not urls:
-            return []
-
-        self.cur.execute('SELECT id, url, owner_id, picture, text, time, likes, tags, links '
-                         'FROM post '
-                         'WHERE url IN %s', (urls,))
-
-        query_result = self.cur.fetchall()
-        if query_result is None:
-            return []
-
-        array_result: List[PostDatabaseModel] = []
-
-        for item in query_result:
-            array_result.append(PostDatabaseModel(
-                id=item[0],
-                url=item[1],
-                owner_id=item[2],
-                picture=item[3],
-                text=item[4],
-                time=item[5],
-                likes=item[6],
-                tags=item[7],
-                links=item[8]
-            ))
-        return array_result
-
     def get_post(self, post: PostScrapingModel) -> PostDatabaseModel:
         self.cur.execute('SELECT id, url, owner_id, picture, text, time, likes, tags, links '
                          'FROM post '
                          'WHERE url = %s',
                          (post.url,))
+
         query_result = self.cur.fetchone()
         if query_result is None:
             return self.add_post(post)
+
         return PostDatabaseModel(
             id=query_result[0],
             url=query_result[1],
@@ -184,6 +157,62 @@ class Database:
             tags=query_result[7],
             links=query_result[8]
         )
+
+    def get_user_posts(self, user_url: str) -> List[PostDatabaseModel]:
+        self.cur.execute('SELECT id '
+                         'FROM account '
+                         'WHERE url = %s',
+                         (user_url,))
+
+        account_id = self.cur.fetchone()[0]
+        if account_id is None:
+            return []
+
+        self.cur.execute('SELECT id, url, owner_id, picture, text, time, likes, tags, links '
+                         'FROM post '
+                         'WHERE owner_id = %s '
+                         'ORDER BY time',
+                         (account_id,))
+
+        query_result = self.cur.fetchall()
+
+        return self.__get_posts_from_query(query_result)
+
+    def get_posts_by_urls(self, *urls) -> List[PostDatabaseModel]:
+        if not urls:
+            return []
+
+        self.cur.execute('SELECT id, url, owner_id, picture, text, time, likes, tags, links '
+                         'FROM post '
+                         'WHERE url IN %s '
+                         'ORDER BY time',
+                         (urls,))
+
+        query_result = self.cur.fetchall()
+
+        return self.__get_posts_from_query(query_result)
+
+    @staticmethod
+    def __get_posts_from_query(query_result: List) -> List[PostDatabaseModel]:
+        if query_result is None:
+            return []
+
+        posts: List[PostDatabaseModel] = []
+
+        for item in query_result:
+            posts.append(PostDatabaseModel(
+                id=item[0],
+                url=item[1],
+                owner_id=item[2],
+                picture=item[3],
+                text=item[4],
+                time=item[5],
+                likes=item[6],
+                tags=item[7],
+                links=item[8]
+            ))
+
+        return posts
 
     def add_comment(self, comment: CommentScrapingModel, post_id: int) -> CommentDatabaseModel:
         self.cur.execute(
@@ -210,13 +239,59 @@ class Database:
         self.logger.info('comment information added to the database: %s', new_comment)
         return new_comment
 
-    def get_comments_by_posts_id(self, *posts_id) -> List[CommentDatabaseModel]:
+    def get_comment(self, comment: CommentScrapingModel, post_id: int) -> CommentDatabaseModel:
+        self.cur.execute('SELECT id, url, post_id, text, owner_url, time, likes, tags, links '
+                         'FROM comment '
+                         'WHERE url = %s AND post_id = %s',
+                         (comment.url, post_id,))
+
+        query_result = self.cur.fetchone()
+        if query_result is None:
+            return self.add_comment(comment, post_id)
+
+        return CommentDatabaseModel(
+            id=query_result[0],
+            url=query_result[1],
+            post_id=query_result[2],
+            text=query_result[3],
+            owner_url=query_result[4],
+            time=query_result[5],
+            likes=query_result[6],
+            tags=query_result[7],
+            links=query_result[8]
+        )
+
+    def get_user_posts_comments(self, user_url: str) -> List[CommentDatabaseModel]:
+        self.cur.execute('SELECT id '
+                         'FROM account '
+                         'WHERE url = %s',
+                         (user_url,))
+
+        account_id = self.cur.fetchone()[0]
+        if account_id is None:
+            return []
+
+        self.cur.execute('SELECT id '
+                         'FROM post '
+                         'WHERE owner_id = %s '
+                         'ORDER BY time',
+                         (account_id,))
+
+        posts_ids = self.cur.fetchall()
+        if posts_ids is None:
+            return []
+
+        return self.get_comments_by_posts_ids(list(map(int, posts_ids)))
+
+    def get_comments_by_posts_ids(self, *posts_id) -> List[CommentDatabaseModel]:
         if not posts_id:
             return []
 
         self.cur.execute('SELECT id, url, post_id, text, owner_url, time, likes, tags, links '
                          'FROM comment '
-                         'WHERE post_id IN %s', (posts_id,))
+                         'WHERE post_id IN %s '
+                         'ORDER BY time',
+                         (posts_id,))
 
         query_result = self.cur.fetchall()
 
@@ -228,7 +303,9 @@ class Database:
 
         self.cur.execute('SELECT id, url, post_id, text, owner_url, time, likes, tags, links '
                          'FROM comment '
-                         'WHERE url IN %s', (urls,))
+                         'WHERE url IN %s '
+                         'ORDER BY time',
+                         (urls,))
 
         query_result = self.cur.fetchall()
 
@@ -253,27 +330,8 @@ class Database:
                 tags=item[7],
                 links=item[8]
             ))
-        return array_result
 
-    def get_comment(self, comment: CommentScrapingModel, post_id: int) -> CommentDatabaseModel:
-        self.cur.execute('SELECT id, url, post_id, text, owner_url, time, likes, tags, links '
-                         'FROM comment '
-                         'WHERE url = %s AND post_id = %s',
-                         (comment.url, post_id,))
-        query_result = self.cur.fetchone()
-        if query_result is None:
-            return self.add_comment(comment, post_id)
-        return CommentDatabaseModel(
-            id=query_result[0],
-            url=query_result[1],
-            post_id=query_result[2],
-            text=query_result[3],
-            owner_url=query_result[4],
-            time=query_result[5],
-            likes=query_result[6],
-            tags=query_result[7],
-            links=query_result[8]
-        )
+        return array_result
 
     def add_posts_with_comments(self, scraped_posts: List[PostScrapingModel]):
         self.logger.info('the process of adding information to the database has started')
