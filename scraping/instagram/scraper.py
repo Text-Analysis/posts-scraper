@@ -6,24 +6,27 @@ from time import sleep
 from instaloader import Instaloader, Profile
 from pytz import timezone
 
-from configs.configs import TZ
-from scraping.models import *
+from configs import TZ
+from database import Database
+from models import *
 from scraping.scraper import Scraper
-from utility.utility import *
+from utility import *
 
 
 class InstagramScraper(Scraper):
 
-    def __init__(self, login: str, password: str, logger: logging.Logger):
+    def __init__(self, login: str, password: str, database_url: str, logger: logging.Logger):
+        self.db = Database(database_url, logger)
         self.loader = Instaloader()
         self.loader.login(login, password)
         self.logger = logger
 
-    def get_posts(self, username: str,
-                  since=(datetime.now() - timedelta(30)),
-                  until=datetime.now()
-                  ) -> List[PostScrapingModel]:
+    def scrape_posts(self, username: str,
+                     since=(datetime.now() - timedelta(30)),
+                     until=datetime.now()
+                     ) -> List[PostScrapingModel]:
         profile = Profile.from_username(self.loader.context, username)
+        sleep(10)
 
         account_info = AccountScrapingModel(
             url=f'https://www.instagram.com/{profile.username}/',
@@ -36,15 +39,16 @@ class InstagramScraper(Scraper):
             )
         )
 
-        self.logger.info('account information has been scraped: %s', account_info)
-        sleep(3)
+        self.db.update_account(account_info)
+        self.logger.info('account information has been scraped: %s', account_info.url)
 
         posts = profile.get_posts()
-        sleep(3)
+        sleep(10)
 
         scraped_posts: List[PostScrapingModel] = []
         for post in takewhile(lambda p: p.date >= since, dropwhile(lambda p: p.date >= until, posts)):
-            post_comments = self.get_comments(post)
+            post_comments = self.scrape_comments(post)
+            sleep(3)
 
             post_info = PostScrapingModel(
                 url=f'https://www.instagram.com/p/{post.shortcode}/',
@@ -59,12 +63,19 @@ class InstagramScraper(Scraper):
             )
 
             scraped_posts.append(post_info)
-            self.logger.info('post information has been scraped: %s', post_info)
+            self.logger.info('post information has been scraped: %s', post_info.url)
             sleep(3)
+
+            post_from_db = self.db.update_post(post_info)
+            for post_comment in post_comments:
+                self.db.update_comment(post_comment, post_from_db.id)
+            sleep(3)
+
+        self.db.close_connection()
 
         return scraped_posts
 
-    def get_comments(self, post: Post) -> List[CommentScrapingModel]:
+    def scrape_comments(self, post: Post) -> List[CommentScrapingModel]:
         post_url = f'https://www.instagram.com/p/{post.shortcode}/'
 
         scraped_comments: List[CommentScrapingModel] = []
@@ -81,7 +92,7 @@ class InstagramScraper(Scraper):
             )
 
             scraped_comments.append(comment_info)
-            self.logger.info('comment information has been scraped: %s', comment_info)
+            self.logger.info('comment information has been scraped: %s', comment_info.url)
             sleep(3)
 
             for answer in comment.answers:
@@ -97,7 +108,7 @@ class InstagramScraper(Scraper):
                 )
 
                 scraped_comments.append(answer_info)
-                self.logger.info('answer information has been scraped: %s', answer_info)
+                self.logger.info('answer information has been scraped: %s', answer_info.url)
                 sleep(3)
 
         return scraped_comments

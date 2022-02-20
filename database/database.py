@@ -2,8 +2,7 @@ import logging
 
 import psycopg2
 
-from scraping.models import *
-from .models import *
+from models import *
 
 
 class Database:
@@ -11,7 +10,6 @@ class Database:
         self.conn = psycopg2.connect(database_url)
         self.cur = self.conn.cursor()
         self.logger = logger
-
         self.logger.info('a connection to the database has been established')
 
     def add_socialnet(self, socialnet: SocialnetScrapingModel) -> SocialnetDatabaseModel:
@@ -27,17 +25,19 @@ class Database:
             name=socialnet.name
         )
 
-        self.logger.info('socialnet information added to the database: %s', new_socialnet)
+        self.logger.info('socialnet information added to the database: %s', new_socialnet.name)
         return new_socialnet
 
-    def get_socialnet(self, socialnet: SocialnetScrapingModel) -> SocialnetDatabaseModel:
+    def update_socialnet(self, socialnet: SocialnetScrapingModel) -> SocialnetDatabaseModel:
         self.cur.execute('SELECT id, name '
                          'FROM socialnet '
                          'WHERE name = %s',
                          (socialnet.name,))
+
         query_result = self.cur.fetchone()
         if query_result is None:
             return self.add_socialnet(socialnet)
+
         return SocialnetDatabaseModel(
             id=query_result[0],
             name=query_result[1]
@@ -57,17 +57,19 @@ class Database:
             is_organization=entity.is_organization
         )
 
-        self.logger.info('entity information added to the database: %s', new_entity)
+        self.logger.info('entity information added to the database: %s', new_entity.name)
         return new_entity
 
-    def get_entity(self, entity: EntityScrapingModel) -> EntityDatabaseModel:
+    def update_entity(self, entity: EntityScrapingModel) -> EntityDatabaseModel:
         self.cur.execute('SELECT id, name, is_organization '
                          'FROM entity '
                          'WHERE name = %s',
                          (entity.name,))
+
         query_result = self.cur.fetchone()
         if query_result is None:
             return self.add_entity(entity)
+
         return EntityDatabaseModel(
             id=query_result[0],
             name=query_result[1],
@@ -75,8 +77,8 @@ class Database:
         )
 
     def add_account(self, account: AccountScrapingModel) -> AccountDatabaseModel:
-        socialnet = self.get_socialnet(account.socialnet)
-        entity = self.get_entity(account.entity)
+        socialnet = self.update_socialnet(account.socialnet)
+        entity = self.update_entity(account.entity)
 
         self.cur.execute('INSERT INTO account (url, entity_id, socialnet_id) '
                          'VALUES (%s, %s, %s) '
@@ -92,17 +94,19 @@ class Database:
             socialnet_id=socialnet.id
         )
 
-        self.logger.info('account information added to the database: %s', new_account)
+        self.logger.info('account information added to the database: %s', new_account.url)
         return new_account
 
-    def get_account(self, account: AccountScrapingModel) -> AccountDatabaseModel:
+    def update_account(self, account: AccountScrapingModel) -> AccountDatabaseModel:
         self.cur.execute('SELECT id, url, entity_id, socialnet_id '
                          'FROM account '
                          'WHERE url = %s',
                          (account.url,))
+
         query_result = self.cur.fetchone()
         if query_result is None:
             return self.add_account(account)
+
         return AccountDatabaseModel(
             id=query_result[0],
             url=query_result[1],
@@ -111,7 +115,7 @@ class Database:
         )
 
     def add_post(self, post: PostScrapingModel) -> PostDatabaseModel:
-        account = self.get_account(post.account)
+        account = self.update_account(post.account)
 
         self.cur.execute(
             'INSERT INTO post (url, owner_id, picture, text, time, likes, tags, links) '
@@ -133,10 +137,10 @@ class Database:
             links=post.links
         )
 
-        self.logger.info('post information added to the database: %s', new_post)
+        self.logger.info('post information added to the database: %s', new_post.url)
         return new_post
 
-    def get_post(self, post: PostScrapingModel) -> PostDatabaseModel:
+    def update_post(self, post: PostScrapingModel) -> PostDatabaseModel:
         self.cur.execute('SELECT id, url, owner_id, picture, text, time, likes, tags, links '
                          'FROM post '
                          'WHERE url = %s',
@@ -186,7 +190,7 @@ class Database:
                          'FROM post '
                          'WHERE url IN %s '
                          'ORDER BY time',
-                         (urls,))
+                         urls)
 
         query_result = self.cur.fetchall()
 
@@ -236,10 +240,10 @@ class Database:
             links=comment.links
         )
 
-        self.logger.info('comment information added to the database: %s', new_comment)
+        self.logger.info('comment information added to the database: %s', new_comment.url)
         return new_comment
 
-    def get_comment(self, comment: CommentScrapingModel, post_id: int) -> CommentDatabaseModel:
+    def update_comment(self, comment: CommentScrapingModel, post_id: int) -> CommentDatabaseModel:
         self.cur.execute('SELECT id, url, post_id, text, owner_url, time, likes, tags, links '
                          'FROM comment '
                          'WHERE url = %s AND post_id = %s',
@@ -277,21 +281,23 @@ class Database:
                          'ORDER BY time',
                          (account_id,))
 
-        posts_ids = self.cur.fetchall()
-        if posts_ids is None:
+        query_result = self.cur.fetchall()
+        if query_result is None:
             return []
 
-        return self.get_comments_by_posts_ids(list(map(int, posts_ids)))
+        posts_ids = tuple(item[0] for item in query_result)
 
-    def get_comments_by_posts_ids(self, *posts_id) -> List[CommentDatabaseModel]:
-        if not posts_id:
+        return self.get_comments_by_posts_ids(posts_ids)
+
+    def get_comments_by_posts_ids(self, *posts_ids) -> List[CommentDatabaseModel]:
+        if not posts_ids:
             return []
 
         self.cur.execute('SELECT id, url, post_id, text, owner_url, time, likes, tags, links '
                          'FROM comment '
                          'WHERE post_id IN %s '
                          'ORDER BY time',
-                         (posts_id,))
+                         posts_ids)
 
         query_result = self.cur.fetchall()
 
@@ -305,7 +311,7 @@ class Database:
                          'FROM comment '
                          'WHERE url IN %s '
                          'ORDER BY time',
-                         (urls,))
+                         urls)
 
         query_result = self.cur.fetchall()
 
@@ -337,9 +343,9 @@ class Database:
         self.logger.info('the process of adding information to the database has started')
 
         for scraped_post in scraped_posts:
-            db_post = self.get_post(scraped_post)
+            db_post = self.update_post(scraped_post)
             for comment in scraped_post.comments:
-                self.get_comment(comment, db_post.id)
+                self.update_comment(comment, db_post.id)
 
         self.logger.info('the process of adding information to the database has ended')
 
