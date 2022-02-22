@@ -243,6 +243,28 @@ class Database:
         self.logger.info('comment information added to the database: %s', new_comment.url)
         return new_comment
 
+    def get_comment(self, comment_id: int) -> CommentDatabaseModel:
+        self.cur.execute('SELECT id, url, post_id, text, owner_url, time, likes, tags, links '
+                         'FROM comment '
+                         'WHERE id = %s',
+                         (comment_id,))
+
+        query_result = self.cur.fetchone()
+        if query_result is None:
+            raise Exception('comment not found')
+
+        return CommentDatabaseModel(
+            id=query_result[0],
+            url=query_result[1],
+            post_id=query_result[2],
+            text=query_result[3],
+            owner_url=query_result[4],
+            time=query_result[5],
+            likes=query_result[6],
+            tags=query_result[7],
+            links=query_result[8]
+        )
+
     def update_comment(self, comment: CommentScrapingModel, post_id: int) -> CommentDatabaseModel:
         self.cur.execute('SELECT id, url, post_id, text, owner_url, time, likes, tags, links '
                          'FROM comment '
@@ -354,3 +376,9 @@ class Database:
         self.conn.close()
 
         self.logger.info('a connection to the database has been closed')
+
+    @staticmethod
+    def remove_links_from_comment(comment: CommentDatabaseModel) -> CommentDatabaseModel:
+        for link in comment.links:
+            comment.text = comment.text.replace(f'@{link}', '')
+        return comment
