@@ -1,4 +1,3 @@
-import logging
 from datetime import timedelta
 from itertools import takewhile, dropwhile
 from time import sleep
@@ -15,11 +14,11 @@ from utility import *
 
 class InstagramScraper(Scraper):
 
-    def __init__(self, login: str, password: str, database_url: str, logger: logging.Logger):
-        self.db = Database(database_url, logger)
+    def __init__(self, login: str, password: str, database_url: str):
+        self.db = Database(database_url)
+
         self.loader = Instaloader()
         self.loader.login(login, password)
-        self.logger = logger
 
     def scrape_posts(self, username: str,
                      since=(datetime.now() - timedelta(30)),
@@ -40,7 +39,7 @@ class InstagramScraper(Scraper):
         )
 
         self.db.update_account(account_info)
-        self.logger.info('account information has been scraped: %s', account_info.url)
+        print('account information has been scraped: %s', account_info.url)
 
         posts = profile.get_posts()
         sleep(10)
@@ -63,7 +62,7 @@ class InstagramScraper(Scraper):
             )
 
             scraped_posts.append(post_info)
-            self.logger.info('post information has been scraped: %s', post_info.url)
+            print('post information has been scraped: %s', post_info.url)
             sleep(3)
 
             post_from_db = self.db.update_post(post_info)
@@ -92,7 +91,7 @@ class InstagramScraper(Scraper):
             )
 
             scraped_comments.append(comment_info)
-            self.logger.info('comment information has been scraped: %s', comment_info.url)
+            print('comment information has been scraped: %s', comment_info.url)
             sleep(3)
 
             for answer in comment.answers:
@@ -108,7 +107,7 @@ class InstagramScraper(Scraper):
                 )
 
                 scraped_comments.append(answer_info)
-                self.logger.info('answer information has been scraped: %s', answer_info.url)
+                print('answer information has been scraped: %s', answer_info.url)
                 sleep(3)
 
         return scraped_comments

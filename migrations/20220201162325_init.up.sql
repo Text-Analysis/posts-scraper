@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS comment
     owner_url TEXT                     NOT NULL,
     time      TIMESTAMP WITH TIME ZONE NOT NULL,
     likes     INTEGER                  NOT NULL,
-    tags     TEXT[],
-    links    TEXT[],
+    tags      TEXT[],
+    links     TEXT[],
     CONSTRAINT fk_post_comment FOREIGN KEY (post_id) REFERENCES post (id)
 );

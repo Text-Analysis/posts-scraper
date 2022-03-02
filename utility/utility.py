@@ -1,5 +1,5 @@
-from typing import List
 import re
+from typing import List
 
 
 def get_hashtags(text: str) -> List[str]:
