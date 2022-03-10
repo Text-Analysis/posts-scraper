@@ -1,16 +1,15 @@
-import logging
-
 import psycopg2
 
 from models import *
 
 
 class Database:
-    def __init__(self, database_url: str, logger: logging.Logger):
+
+    def __init__(self, database_url: str):
         self.conn = psycopg2.connect(database_url)
         self.cur = self.conn.cursor()
-        self.logger = logger
-        self.logger.info('a connection to the database has been established')
+
+        print('a connection to the database has been established')
 
     def add_socialnet(self, socialnet: SocialnetScrapingModel) -> SocialnetDatabaseModel:
         self.cur.execute('INSERT INTO socialnet (name) '
@@ -25,7 +24,7 @@ class Database:
             name=socialnet.name
         )
 
-        self.logger.info('socialnet information added to the database: %s', new_socialnet.name)
+        print('socialnet information added to the database: %s', new_socialnet.name)
         return new_socialnet
 
     def update_socialnet(self, socialnet: SocialnetScrapingModel) -> SocialnetDatabaseModel:
@@ -57,7 +56,7 @@ class Database:
             is_organization=entity.is_organization
         )
 
-        self.logger.info('entity information added to the database: %s', new_entity.name)
+        print('entity information added to the database: %s', new_entity.name)
         return new_entity
 
     def update_entity(self, entity: EntityScrapingModel) -> EntityDatabaseModel:
@@ -94,7 +93,7 @@ class Database:
             socialnet_id=socialnet.id
         )
 
-        self.logger.info('account information added to the database: %s', new_account.url)
+        print('account information added to the database: %s', new_account.url)
         return new_account
 
     def update_account(self, account: AccountScrapingModel) -> AccountDatabaseModel:
@@ -137,7 +136,7 @@ class Database:
             links=post.links
         )
 
-        self.logger.info('post information added to the database: %s', new_post.url)
+        print('post information added to the database: %s', new_post.url)
         return new_post
 
     def update_post(self, post: PostScrapingModel) -> PostDatabaseModel:
@@ -240,7 +239,7 @@ class Database:
             links=comment.links
         )
 
-        self.logger.info('comment information added to the database: %s', new_comment.url)
+        print('comment information added to the database: %s', new_comment.url)
         return new_comment
 
     def get_comment(self, comment_id: int) -> CommentDatabaseModel:
@@ -362,20 +361,20 @@ class Database:
         return array_result
 
     def add_posts_with_comments(self, scraped_posts: List[PostScrapingModel]):
-        self.logger.info('the process of adding information to the database has started')
+        print('the process of adding information to the database has started')
 
         for scraped_post in scraped_posts:
             db_post = self.update_post(scraped_post)
             for comment in scraped_post.comments:
                 self.update_comment(comment, db_post.id)
 
-        self.logger.info('the process of adding information to the database has ended')
+        print('the process of adding information to the database has ended')
 
     def close_connection(self):
         self.cur.close()
         self.conn.close()
 
-        self.logger.info('a connection to the database has been closed')
+        print('a connection to the database has been closed')
 
     @staticmethod
     def remove_links_from_comment(comment: CommentDatabaseModel) -> CommentDatabaseModel:

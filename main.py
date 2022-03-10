@@ -1,6 +1,4 @@
 import argparse as ap
-import logging
-import logging.config
 from datetime import datetime
 from time import sleep
 
@@ -8,12 +6,6 @@ from instaloader import ProfileNotExistsException, ConnectionException
 
 from configs import *
 from scraping import InstagramScraper
-
-
-def init_logger() -> logging.Logger:
-    logging.config.dictConfig(LOGGING_CONFIG)
-    logger = logging.getLogger('my_logger')
-    return logger
 
 
 def init_args_parser() -> ap.ArgumentParser:
@@ -44,8 +36,6 @@ def init_args_parser() -> ap.ArgumentParser:
 
 
 def main():
-    logger = init_logger()
-
     parser = init_args_parser()
     args = parser.parse_args()
 
@@ -53,29 +43,29 @@ def main():
         start_time = datetime.fromisoformat(args.start_time)
         end_time = datetime.fromisoformat(args.end_time)
     except ValueError as ex:
-        logger.fatal('exception occurred while converting start_time, end_time from strings to datetime objects: %s',
-                     ex)
+        print('exception occurred while converting start_time, end_time from strings to datetime objects: %s',
+              ex)
         return
 
     if start_time > end_time:
-        logger.fatal('end_time date cannot be earlier then start_time date: start_time=%s, end_time=%s',
-                     start_time, end_time)
+        print('end_time date cannot be earlier then start_time date: start_time=%s, end_time=%s',
+              start_time, end_time)
         return
 
     while True:
         try:
-            scraper = InstagramScraper(INSTA_LOGIN, INSTA_PASSWORD, DATABASE_URL, logger)
+            scraper = InstagramScraper(INSTA_LOGIN, INSTA_PASSWORD, DATABASE_URL)
             break
         except ConnectionException as ex:
-            logger.warning('exception occurred while getting %s account info: %s', args.username, ex)
+            print('exception occurred while getting %s account info: %s', args.username, ex)
 
-            logger.info('sleep 10 second and retry to connect...')
+            print('sleep 10 second and retry to connect...')
             sleep(10)
 
     try:
         scraper.scrape_posts(args.username, start_time, end_time)
     except ProfileNotExistsException as ex:
-        logger.fatal('exception occurred while getting %s account info: %s', args.username, ex)
+        print('exception occurred while getting %s account info: %s', args.username, ex)
         return
 
 
