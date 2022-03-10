@@ -120,7 +120,7 @@ class Database:
             'INSERT INTO post (url, owner_id, picture, text, time, likes, tags, links) '
             'VALUES (%s, %s, %s, %s, %s, %s, %s, %s) '
             'RETURNING id',
-            (post.url, account.id, post.picture, post.text, post.time, post.likes, post.tags, post.links))
+            (post.url, account.id, post.picture, post.text, post.time, post.likes, post.tags, post.links,))
         self.conn.commit()
 
         post_id = self.cur.fetchone()[0]
@@ -181,7 +181,7 @@ class Database:
 
         return self.__get_posts_from_query(query_result)
 
-    def get_posts_by_urls(self, *urls) -> List[PostDatabaseModel]:
+    def get_posts_by_urls(self, urls) -> List[PostDatabaseModel]:
         if not urls:
             return []
 
@@ -189,7 +189,7 @@ class Database:
                          'FROM post '
                          'WHERE url IN %s '
                          'ORDER BY time',
-                         urls)
+                         (urls,))
 
         query_result = self.cur.fetchall()
 
@@ -223,7 +223,7 @@ class Database:
             'VALUES (%s, %s, %s, %s, %s, %s, %s, %s) '
             'RETURNING id',
             (comment.url, post_id, comment.text, comment.owner_url, comment.time, comment.likes,
-             comment.tags, comment.links))
+             comment.tags, comment.links,))
         self.conn.commit()
 
         comment_id = self.cur.fetchone()[0]
@@ -310,7 +310,7 @@ class Database:
 
         return self.get_comments_by_posts_ids(posts_ids)
 
-    def get_comments_by_posts_ids(self, *posts_ids) -> List[CommentDatabaseModel]:
+    def get_comments_by_posts_ids(self, posts_ids) -> List[CommentDatabaseModel]:
         if not posts_ids:
             return []
 
@@ -318,13 +318,13 @@ class Database:
                          'FROM comment '
                          'WHERE post_id IN %s '
                          'ORDER BY time',
-                         posts_ids)
+                         (posts_ids,))
 
         query_result = self.cur.fetchall()
 
         return self.__get_comments_from_query(query_result)
 
-    def get_comments_by_urls(self, *urls) -> List[CommentDatabaseModel]:
+    def get_comments_by_urls(self, urls) -> List[CommentDatabaseModel]:
         if not urls:
             return []
 
@@ -332,7 +332,7 @@ class Database:
                          'FROM comment '
                          'WHERE url IN %s '
                          'ORDER BY time',
-                         urls)
+                         (urls,))
 
         query_result = self.cur.fetchall()
 
